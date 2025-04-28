@@ -1,0 +1,25 @@
+version: "2.2"
+services:
+  jobmanager:
+    image: jagger-flink-job:1.0
+    ports:
+      - "8081:8081"
+    command: standalone-job --job-classname com.dev.flink_nc_demo1
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        parallelism.default: 2
+
+  taskmanager:
+    image: jagger-flink-job:1.0
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    scale: 1
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
+        parallelism.default:2

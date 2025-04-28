@@ -1,0 +1,29 @@
+version: "2.2"
+services:
+  jobmanager:
+    image: flink:1.20.1-java11
+    ports:
+      - "8081:8081"
+    command: standalone-job --job-classname com.dev.flink_nc_demo1
+    volumes:
+      - /home/jagger.luo/projects/paimon-flink/target/paimon-flink-1.0-SNAPSHOT.jar:/opt/flink/usrlib/paimon-flink.jar
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        parallelism.default: 2        
+
+  taskmanager:
+    image: flink:1.20.1-java11
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    scale: 1
+    volumes:
+      - /home/jagger.luo/projects/paimon-flink/target/paimon-flink-1.0-SNAPSHOT.jar:/opt/flink/usrlib/paimon-flink.jar
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
+        parallelism.default: 2
