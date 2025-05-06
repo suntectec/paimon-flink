@@ -1,4 +1,4 @@
-package com.dev;
+package com.devOpsLab;
 
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -8,7 +8,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
  * 发送端 nc -l -n -p 9999
  * 接收端 telnet localhost  9999
  */
-public class flink_nc_demo1 {
+public class FlinkNCDemo {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 

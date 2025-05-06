@@ -1,10 +1,10 @@
 version: "2.2"
 services:
   jobmanager:
-    image: jagger-flink-job:1.0
+    image: jagger-flink-job:1.1
     ports:
       - "8081:8081"
-    command: standalone-job --job-classname com.dev.flink_nc_demo1
+    command: standalone-job --job-classname com.devOpsLab.FlinkNCDemo
     environment:
       - |
         FLINK_PROPERTIES=
@@ -12,7 +12,7 @@ services:
         parallelism.default: 2
 
   taskmanager:
-    image: jagger-flink-job:1.0
+    image: jagger-flink-job:1.1
     depends_on:
       - jobmanager
     command: taskmanager

@@ -1,6 +1,6 @@
-package com.dev;
+package com.devOpsLab;
 
-public class flink_mysql_demo1 {
+public class FlinkMysqlDemo {
     public static void main(String[] args) {
 
     }

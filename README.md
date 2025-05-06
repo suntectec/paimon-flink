@@ -8,13 +8,13 @@
   - Flink 官方示例程序:  
     `./bin/flink run ./examples/streaming/TopSpeedWindowing.jar`
   - 自定义 Netcat 网络通信 Demo:  
-    `com.dev.flink_nc_demo1`
+    `com.devOpsLab.flink_nc_demo1`
 
 ### 1.2 Application Mode 测试
 - 启动方式：通过 `docker run` 命令直接启动
 - 测试用例：
   - 自定义 Netcat 网络通信 Demo:  
-    `com.dev.flink_nc_demo1`
+    `com.devOpsLab.flink_nc_demo1`
 
 ### 1.3 Docker Compose 集成测试
 - 启动方式：使用 `docker-compose.xml` 挂载 JAR 包
@@ -22,7 +22,7 @@
 - 适用场景：开发/测试环境
 - 测试用例：
   - 自定义 Netcat 网络通信 Demo:  
-    `com.dev.flink_nc_demo1`
+    `com.devOpsLab.flink_nc_demo1`
 
 ## 2. 自定义镜像测试 (jagger-flink-job:1.0)
 
