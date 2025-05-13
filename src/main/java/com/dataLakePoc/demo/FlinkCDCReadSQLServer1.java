@@ -1,4 +1,4 @@
-package com.dataLakePoc;
+package com.dataLakePoc.demo;
 
 import org.apache.flink.cdc.connectors.sqlserver.SqlServerSource;
 import org.apache.flink.cdc.debezium.JsonDebeziumDeserializationSchema;

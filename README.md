@@ -32,3 +32,8 @@
   - 非挂载方式（JAR 包内置于镜像）
   - 不依赖外部挂载卷
 - 适用场景：CI/CD 流水线或生产环境
+
+## 3. paimon flink
+
+### 3.1 paimon add to flink 1.1.1
+- flink镜像加入paimon

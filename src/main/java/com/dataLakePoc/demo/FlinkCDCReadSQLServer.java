@@ -1,4 +1,4 @@
-package com.dataLakePoc;
+package com.dataLakePoc.demo;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
