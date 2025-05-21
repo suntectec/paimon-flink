@@ -1,0 +1,164 @@
+version: '3.8'
+
+services:
+  # MinIO service - provides S3 compatible object storage
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"  # API port
+      - "9001:9001"  # Console port
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_DOMAIN: minio
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      app_network:
+        aliases:
+          - warehouse.minio
+
+  rest:
+    image: tabulario/iceberg-rest
+    container_name: iceberg-rest
+    networks:
+      app_network:
+    ports:
+      - 8181:8181
+    environment:
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_REGION=us-east-1
+      - CATALOG_WAREHOUSE=s3a://warehouse/
+      - CATALOG_IO__IMPL=org.apache.iceberg.aws.s3.S3FileIO
+      - CATALOG_S3_ENDPOINT=http://minio:9000
+
+  # Flink Standalone cluster
+  flink-jobmanager:
+    image: flink:1.20-scala_2.12-java17
+    container_name: flink-jobmanager
+    ports:
+      - "8081:8081"  # Flink Web UI
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_REGION=us-east-1
+    command: jobmanager
+    networks:
+      - app_network
+    volumes:
+      - ./flink-plugins:/opt/flink/lib/flink-plugins
+    depends_on:
+      - minio
+
+  flink-taskmanager-1:
+    image: flink:1.20-scala_2.12-java17
+    container_name: flink-taskmanager-1
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=8
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_REGION=us-east-1
+    command: taskmanager
+    networks:
+      - app_network
+    volumes:
+      - ./flink-plugins:/opt/flink/lib/flink-plugins
+    depends_on:
+      - flink-jobmanager
+
+  # 第二个 TaskManager
+  flink-taskmanager-2:
+    image: flink:1.20-scala_2.12-java17
+    container_name: flink-taskmanager-2
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=8
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_REGION=us-east-1
+    command: taskmanager
+    networks:
+      - app_network
+    volumes:
+      - ./flink-plugins:/opt/flink/lib/flink-plugins
+    depends_on:
+      - flink-jobmanager
+
+  # MySQL server
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: iceberg_db
+      MYSQL_USER: iceberg
+      MYSQL_PASSWORD: icebergpass
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/conf:/etc/mysql/conf.d
+    networks:
+      - app_network
+    command: --default-authentication-plugin=mysql_native_password --server-id=1 --log-bin=mysql-bin --binlog-format=ROW --binlog-row-image=FULL
+
+  # SQL Server (Azure SQL Edge for ARM64)
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-CU15-ubuntu-22.04
+    container_name: sqlserver
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: StrongPassword123!
+      MSSQL_AGENT_ENABLED: 1
+      MSSQL_MEMORY_LIMIT_MB: 2048
+    volumes:
+      #- ./sqlserver/setup:/docker-entrypoint-initdb.d
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - app_network
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "StrongPassword123!" -Q "SELECT 1" || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # SeaTunnel
+  seatunnel:
+    image: apache/seatunnel:2.3.10
+    container_name: seatunnel
+    command: tail -f /dev/null
+    user: root
+    ports:
+      - "8084:8081"
+    networks:
+      - app_network
+    depends_on:
+      - flink-jobmanager
+      - mysql
+      - sqlserver
+      - minio
+    volumes:
+      - /opt/flink:/opt/flink
+      - /opt/iceberg-poc/seatunnel-plugins:/opt/seatunnel/plugins/seatunnel-plugins
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  minio_data:
+  mysql_data:
+  sqlserver_data:
+  seatunnel_config:
