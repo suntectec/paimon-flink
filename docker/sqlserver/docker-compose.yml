@@ -1,0 +1,42 @@
+#---
+#version: '2'
+services:
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-CU15-ubuntu-22.04
+    hostname: sqlserver
+    user: root
+    container_name: sqlserver
+    networks:
+      - integration
+    restart: always
+    env_file:
+      - env/sqlserver.env
+    environment:
+      TZ: Asia/Macau
+      ACCEPT_EULA: Y
+      SA_PASSWORD: Abcd1234
+      MSSQL_DATA_DIR: /var/opt/sqlserver/data
+      MSSQL_LOG_DIR: /var/opt/sqlserver/log
+      MSSQL_BACKUP_DIR: /var/opt/sqlserver/backup
+      MSSQL_MEMORY_LIMIT_MB: 2048
+      #MSSQL_MEMORY_LIMIT_MB: 12288
+      MSSQL_AGENT_ENABLED: 1
+      #MSSQL_COLLATION: Latin1_General_CS_AS
+    ports:
+      - 1433:1433
+    volumes:
+      - ./src/mssql-init:/mssql-init
+      - sql-server-data:/var/opt/sqlserver
+
+
+volumes:
+  sql-server-data:
+    driver: local
+  #  sqldata:
+  #  sqllog:
+  #  sqlbackup:
+
+networks:
+  integration:
+    driver: bridge

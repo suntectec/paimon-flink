@@ -95,3 +95,38 @@ SET 'execution.runtime-mode' = 'batch';
 -- track the changes of table and calculate the count interval statistics
 SELECT `status`, SUM(qty) AS qty_total FROM sqlserver_paimon_sink GROUP BY `status`;
 
+
+
+-- Way 2 - Not Catalog
+CREATE TABLE sqlserver_source (
+                                  id INT,
+                                  name VARCHAR(50),
+                                  PRIMARY KEY (id) NOT ENFORCED
+) WITH (
+      'connector' = 'sqlserver-cdc',
+      'hostname' = 'dev-ds-trm01.tailb6e5ab.ts.net',
+      'port' = '1433',
+      'username' = 'flink',
+      'password' = 'flink',
+      'database-name' = 'poc_db',
+      'table-name' = 'lab.users'
+      );
+
+CREATE TABLE paimon_sink (
+                             id INT,
+                             name VARCHAR(50),
+                             PRIMARY KEY (id) NOT ENFORCED
+) WITH (
+      'connector' = 'paimon',
+      'path' = 'file:///tmp/paimon/warehouse',
+      'auto-create' = 'true'
+      );
+
+INSERT INTO paimon_sink SELECT * FROM sqlserver_source;
+
+SET 'execution.checkpointing.interval' = '5 s';
+
+-- read
+SELECT * FROM sqlserver_source;
+SELECT * FROM paimon_sink;
+

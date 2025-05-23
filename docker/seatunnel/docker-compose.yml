@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  #SQL Server (Azure SQL Edge for ARM64)
+  # SQL Server (Azure SQL Edge for ARM64)
   sqlserver:
     container_name: sqlserver-test
     image: mcr.microsoft.com/mssql/server:2019-latest
