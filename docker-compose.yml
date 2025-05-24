@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  #SQL Server (Azure SQL Edge for ARM64)
+  # SQL Server (Azure SQL Edge for ARM64)
   sqlserver:
     container_name: sqlserver-test
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -42,8 +42,8 @@ services:
     image: minio/minio:latest
     container_name: minio-test
     ports:
-      - "9090:9000"  # API port
-      - "9091:9001"  # Console port
+      - "9900:9000"  # API port
+      - "9901:9001"  # Console port
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
