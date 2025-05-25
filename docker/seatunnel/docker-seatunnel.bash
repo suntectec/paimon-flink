@@ -59,7 +59,7 @@ docker exec -it seatunnel-test bash
 #docker run --rm -it \
 #  --name test \
 #  -v /home/jagger.luo/projects/paimon-flink/docker/seatunnel/config/:/config \
-#  -v /home/jagger.luo/repos/mssql-jdbc-12.10.0.jre11.jar:/opt/seatunnel/lib/mssql-jdbc-12.10.0.jre11.jar \
+#  -v /home/jagger.luo/plugins/mssql-jdbc-12.10.0.jre11.jar:/opt/seatunnel/lib/mssql-jdbc-12.10.0.jre11.jar \
 #  apache/seatunnel:2.3.10 \
 #  ./bin/seatunnel.sh -m local -c /config/sqlserver2console.conf
 
@@ -67,7 +67,7 @@ docker exec -it seatunnel-test bash
 #docker run --rm -it \
 #  --name test \
 #  -v /home/jagger.luo/projects/paimon-flink/docker/seatunnel/config/:/config \
-#  -v /home/jagger.luo/repos/paimon-s3-1.1.1.jar:/opt/seatunnel/lib/paimon-s3-1.1.1.jar \
+#  -v /home/jagger.luo/plugins/paimon-s3-1.1.1.jar:/opt/seatunnel/lib/paimon-s3-1.1.1.jar \
 #  apache/seatunnel:2.3.10 \
 #  ./bin/seatunnel.sh -m local -c /config/fake2paimon.conf
 

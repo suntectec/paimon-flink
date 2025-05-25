@@ -76,7 +76,7 @@ services:
     networks:
       - sea-net
     volumes:
-      - /home/jagger.luo/repos/:/opt/flink/lib/plugins/
+      - /home/jagger.luo/plugins/:/opt/flink/lib/plugins/
     depends_on:
       - minio
 
@@ -93,7 +93,7 @@ services:
     networks:
       - sea-net
     volumes:
-      - /home/jagger.luo/repos/:/opt/flink/lib/plugins/
+      - /home/jagger.luo/plugins/:/opt/flink/lib/plugins/
     depends_on:
       - flink-jobmanager
 
@@ -111,7 +111,7 @@ services:
     networks:
       - sea-net
     volumes:
-      - /home/jagger.luo/repos/:/opt/flink/lib/plugins/
+      - /home/jagger.luo/plugins/:/opt/flink/lib/plugins/
     depends_on:
       - flink-jobmanager
 

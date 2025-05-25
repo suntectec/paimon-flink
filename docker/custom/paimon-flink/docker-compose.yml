@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # Flink Standalone cluster
+  flink-jobmanager:
+    image: suntectec/paimon-flink
+    container_name: paimon-flink-jobmanager
+    ports:
+      - "8881:8081"  # Flink Web UI
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    command: jobmanager
+    networks:
+      - sea-net
+
+  flink-taskmanager-1:
+    image: suntectec/paimon-flink
+    container_name: paimon-flink-taskmanager-1
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=8
+    command: taskmanager
+    networks:
+      - sea-net
+    depends_on:
+      - flink-jobmanager
+
+  # 第二个 TaskManager
+  flink-taskmanager-2:
+    image: suntectec/paimon-flink
+    container_name: paimon-flink-taskmanager-2
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=8
+    command: taskmanager
+    networks:
+      - sea-net
+    depends_on:
+      - flink-jobmanager
+
+networks:
+  sea-net:
+    driver: bridge
