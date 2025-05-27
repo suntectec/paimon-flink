@@ -11,9 +11,9 @@ public class FlinkConnectKafkaSource {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         KafkaSource<String> source = KafkaSource.<String>builder()
-                .setBootstrapServers("192.168.138.15:9992")
-                .setTopics("poc-topic")
-                .setGroupId("poc-group")
+                .setBootstrapServers("192.168.138.15:9092")
+                .setTopics("test-topic")
+                .setGroupId("test-group")
                 .setStartingOffsets(OffsetsInitializer.earliest())
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();

@@ -1,9 +1,8 @@
+docker exec -it kafka-broker bash
+
 /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
 
-/opt/kafka/bin/kafka-topics.sh --create --topic poc-topic --bootstrap-server localhost:9092,localhost:9092 --partitions 1 --replication-factor 1 --config retention.ms=259200000
-
-
-
+/opt/kafka/bin/kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1 --config retention.ms=259200000
 
 
 
@@ -12,8 +11,11 @@
   --list
 
 /opt/kafka/bin/kafka-console-consumer.sh \
-  --bootstrap-server 192.168.138.15:9092 \
-  --topic poc-topic \
-  --group poc-group
+  --bootstrap-server localhost:9092 \
+  --topic test-topic \
+  --group test-group
 
 
+/opt/kafka/bin/kafka-console-producer.sh \
+  --bootstrap-server localhost:9092 \
+  --topic test-topic
