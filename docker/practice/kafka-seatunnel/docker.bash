@@ -16,10 +16,13 @@ CREATE CATALOG paimon_catalog WITH (
 
 USE CATALOG paimon_catalog;
 
-USE paimonx_db;
+USE _test;
 
-select count(*) from seatunnel_sqlserver_paimon_sink;
-select * from seatunnel_sqlserver_paimon_sink;
+select count(*) from order_json_format_test;
+select * from order_json_format_test;
+
+# org.apache.flink.table.api.TableException: Column 'id' is NOT NULL, however, a null value is being written into it. You can set job configuration 'table.exec.sink.not-null-enforcer'='DROP' to suppress this exception and drop such records silently.
+set 'table.exec.sink.not-null-enforcer'='DROP';
 
 
 SET 'execution.checkpointing.interval' = '5 s';
