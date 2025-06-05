@@ -1,13 +1,13 @@
 local:
 
-/opt/apache-seatunnel-2.3.10/bin/seatunnel.sh -m local \
--c /home/jagger.luo/projects/paimon-flink/docker/practice/kafka-seatunnel/config/kafka2paimon.stream.conf
-
+/opt/apache-seatunnel-2.3.10/bin/seatunnel.sh \
+-m local \
+-c /home/Data.Eng/jagger/local/seatunnel/config/kafka2paimon.protobuf.stream.conf
 
 
 CREATE CATALOG paimon_catalog WITH (
   'type'='paimon',
-  'warehouse'='s3://tmp/kafka/seatunnel',
+  'warehouse'='s3a://warehouse/paimon/seatunnel/',
   's3.endpoint'='http://minio:9000',
   's3.access-key'='minioadmin',
   's3.secret-key'='minioadmin',
@@ -16,10 +16,10 @@ CREATE CATALOG paimon_catalog WITH (
 
 USE CATALOG paimon_catalog;
 
-USE _test;
+USE paimon;
 
-select count(*) from order_json_format_test;
-select * from order_json_format_test;
+select count(*) from order_protobuf_format;
+select * from order_protobuf_format;
 
 # org.apache.flink.table.api.TableException: Column 'id' is NOT NULL, however, a null value is being written into it. You can set job configuration 'table.exec.sink.not-null-enforcer'='DROP' to suppress this exception and drop such records silently.
 set 'table.exec.sink.not-null-enforcer'='DROP';

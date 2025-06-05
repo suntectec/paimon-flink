@@ -1,6 +1,28 @@
 version: '3.8'
 
 services:
+  # SQL Server (Azure SQL Edge for ARM64)
+  sqlserver:
+    container_name: sqlserver-test
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports:
+      - "2433:1433"
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: StrongPassword123!
+      MSSQL_AGENT_ENABLED: 1
+      MSSQL_MEMORY_LIMIT_MB: 2048
+    volumes:
+      #- ./sqlserver/setup:/docker-entrypoint-initdb.d
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - sea-net
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "StrongPassword123!" -Q "SELECT 1" || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # SeaTunnel
   seatunnel:
     image: apache/seatunnel:2.3.10
@@ -9,10 +31,11 @@ services:
     user: root
     networks:
       - sea-net
+    depends_on:
+      - sqlserver
     volumes:
-      - ./config/:/config
-    env_file:
-      - app.env
+      - ./config:/config
+      - /tmp/paimon/seatunnel/:/tmp/paimon/seatunnel/
 
   # MinIO service - provides S3 compatible object storage
   minio:
@@ -22,8 +45,8 @@ services:
       - "9900:9000"  # API port
       - "9901:9001"  # Console port
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
       MINIO_DOMAIN: minio
     volumes:
       - minio_data:/data
@@ -37,13 +60,11 @@ services:
       sea-net:
         aliases:
           - warehouse.minio
-    env_file:
-      - app.env
 
   # Flink Standalone cluster
   flink-jobmanager:
     image: flink:1.20-scala_2.12-java17
-    container_name: paimon-flink-jobmanager
+    container_name: flink-jobmanager-test
     ports:
       - "8881:8081"  # Flink Web UI
     environment:
@@ -55,16 +76,13 @@ services:
     networks:
       - sea-net
     volumes:
-      - /home/jagger.luo/plugins:/opt/flink/lib/plugins
+      - /home/jagger.luo/plugins/:/opt/flink/lib/plugins/
     depends_on:
-      minio:
-        condition: service_healthy
-    env_file:
-      - app.env
+      - minio
 
   flink-taskmanager-1:
     image: flink:1.20-scala_2.12-java17
-    container_name: paimon-flink-taskmanager-1
+    container_name: flink-taskmanager-1-test
     environment:
       - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
       - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=8
@@ -75,16 +93,14 @@ services:
     networks:
       - sea-net
     volumes:
-      - /home/jagger.luo/plugins:/opt/flink/lib/plugins
+      - /home/jagger.luo/plugins/:/opt/flink/lib/plugins/
     depends_on:
       - flink-jobmanager
-    env_file:
-      - app.env
 
   # 第二个 TaskManager
   flink-taskmanager-2:
     image: flink:1.20-scala_2.12-java17
-    container_name: paimon-flink-taskmanager-2
+    container_name: flink-taskmanager-2-test
     environment:
       - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
       - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=8
@@ -95,15 +111,14 @@ services:
     networks:
       - sea-net
     volumes:
-      - /home/jagger.luo/plugins:/opt/flink/lib/plugins
+      - /home/jagger.luo/plugins/:/opt/flink/lib/plugins/
     depends_on:
       - flink-jobmanager
-    env_file:
-      - app.env
 
 networks:
   sea-net:
     driver: bridge
 
 volumes:
+  sqlserver_data:
   minio_data:
